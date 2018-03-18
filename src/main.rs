@@ -8,6 +8,7 @@ use chip_gpio::ChipPin::*;
 
 fn main() {
     println!("Let's blink the LED!");
+    
     let my_led = XIO_P0.get();
     my_led.with_exported(|| {
         loop {
