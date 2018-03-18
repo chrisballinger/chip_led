@@ -2,7 +2,7 @@
 
 export SCRIPT_DIR=$(dirname $0)
 export HOST="chip@chip.local"
-export REMOTE_EXE_PATH="/home/chip/chip_led/chip_led"
+export REMOTE_EXE_PATH="/home/chip/chip_led_bin/chip_led"
 
 echo "Running cargo build..."
 cargo build --manifest-path=${SCRIPT_DIR}/Cargo.toml --target=armv7-unknown-linux-gnueabihf
