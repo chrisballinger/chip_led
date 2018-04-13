@@ -1,41 +1,55 @@
 extern crate chip_gpio;
 extern crate sysfs_gpio;
-use sysfs_gpio::{Direction};
+use sysfs_gpio::{Direction, Result, Pin};
 use std::thread::sleep;
 use std::time::Duration;
 
 use chip_gpio::ChipPin::*;
 
 fn main() {
-    blink_pins();
+    match blink_pins() {
+        Ok(_) => println!("Boop"),
+        Err(err) => println!("Error: {}", err),
+    }
 }
 
-fn blink_pins() {
+fn reset_pins(pins: &Vec<Pin>) -> Result<()>  {
+    for pin in pins.iter() {
+        pin.with_exported(|| {
+            pin.set_direction(Direction::Out)?;
+            pin.set_value(0)?;
+            Ok(())
+        })?;
+    }
+    Ok(())
+}
+
+fn blink_pins() -> Result<()> {
     let red = XIO_P0;
     let yellow = XIO_P2;
     let green = XIO_P4;
-    let pins = [red.get(), yellow.get(), green.get()];
+    let pins = vec![red.get(), yellow.get(), green.get()];
 
     println!("Let's blink the pins: {:?}", pins);
 
     // setup pins
-    for pin in pins.iter() {
-        pin.export().unwrap();
-        pin.set_direction(Direction::Out).unwrap();
-        for pin in pins.iter() {
-            pin.set_value(0).unwrap();
-        };
+    match reset_pins(&pins) {
+        Ok(_) => println!("Pins reset."),
+        Err(err) => println!("Error resetting pins: {}", err),
     }
     
     loop {
         for pin in pins.iter() {
-            println!("Pin {:?}", pin);
-            pin.set_value(0).unwrap();
-            println!("pin {:?}: OFF", pin);
-            sleep(Duration::from_millis(500));
-            pin.set_value(1).unwrap();
-            println!("pin {:?}: ON", pin);
-            sleep(Duration::from_millis(500));
+            pin.with_exported(|| {
+                println!("Pin {:?}", pin);
+                pin.set_value(0).unwrap();
+                println!("pin {:?}: OFF", pin);
+                sleep(Duration::from_millis(500));
+                pin.set_value(1).unwrap();
+                println!("pin {:?}: ON", pin);
+                sleep(Duration::from_millis(500));
+                Ok(())
+            })?;
         }
     }
 }
