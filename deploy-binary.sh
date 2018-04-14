@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 export SCRIPT_DIR=$(dirname $0)
 export HOST="chip@chip.local"
 export REMOTE_EXE_PATH="/home/chip/chip_led_bin/chip_led"
